@@ -95,7 +95,7 @@ public final class OplusEdrUtils {
     }
 
     public static boolean isUHDRSupport() {
-        return SystemProperties.getBoolean("persist.sys.feature.uhdr.support", false);
+        return SystemProperties.getBoolean("persist.sys.feature.uhdr.support", true);
     }
 
     public static boolean setEdrGainmapInfo(SurfaceControl sc, SurfaceControl.Transaction transaction, OplusSkGainmapInfo info, int index) {
