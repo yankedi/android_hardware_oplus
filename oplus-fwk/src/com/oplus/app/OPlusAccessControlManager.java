@@ -28,7 +28,7 @@ public class OPlusAccessControlManager {
     }
 
     public boolean isEncryptedPackage(String packageName, int userId) {
-        return true;
+        return false;
     }
 
     public Map<String, Integer> getAccessControlAppsInfo(String type, int userId) {
