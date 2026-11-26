@@ -31,4 +31,9 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         <version>1</version>
         <fqname>IVibrator/default</fqname>
     </hal>
+    <hal format="aidl">
+        <name>vendor.oplus.hardware.vibrator</name>
+        <version>1</version>
+        <fqname>IOplusVibrator/default</fqname>
+    </hal>
 </manifest>

@@ -33,16 +33,23 @@
 #include <android/binder_manager.h>
 #include <android/binder_process.h>
 
+#include "include/OplusVibrator.h"
 #include "Vibrator.h"
 
 using aidl::android::hardware::vibrator::Vibrator;
+using aidl::vendor::oplus::hardware::vibrator::OplusVibrator;
 
 int main() {
-    ABinderProcess_setThreadPoolMaxThreadCount(0);
+    ABinderProcess_setThreadPoolMaxThreadCount(2);
     std::shared_ptr<Vibrator> vib = ndk::SharedRefBase::make<Vibrator>();
 
     const std::string instance = std::string() + Vibrator::descriptor + "/default";
     binder_status_t status = AServiceManager_addService(vib->asBinder().get(), instance.c_str());
+    CHECK(status == STATUS_OK);
+
+    std::shared_ptr<OplusVibrator> oplusVib = ndk::SharedRefBase::make<OplusVibrator>(vib);
+    const std::string oplusInstance = std::string() + OplusVibrator::descriptor + "/default";
+    status = AServiceManager_addService(oplusVib->asBinder().get(), oplusInstance.c_str());
     CHECK(status == STATUS_OK);
 
     ABinderProcess_joinThreadPool();

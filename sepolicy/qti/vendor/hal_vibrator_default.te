@@ -1,1 +1,6 @@
 allow hal_vibrator_default aac_richtap_device:chr_file rw_file_perms;
+
+hal_server_domain(hal_vibrator_default, vendor_hal_oplus_vibrator)
+hal_attribute_service(vendor_hal_oplus_vibrator, hal_oplus_vibrator_aidl_service)
+binder_call(vendor_hal_oplus_vibrator_client, vendor_hal_oplus_vibrator_server)
+binder_call(vendor_hal_oplus_vibrator_server, vendor_hal_oplus_vibrator_client)

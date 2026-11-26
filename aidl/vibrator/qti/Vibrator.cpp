@@ -37,6 +37,7 @@
 #include <log/log.h>
 #include <string.h>
 #include <sys/ioctl.h>
+#include <cerrno>
 #include <thread>
 
 #include "include/Vibrator.h"
@@ -278,14 +279,31 @@ errout:
 }
 
 int InputFFDevice::on(int32_t timeoutMs) {
+    std::lock_guard<std::mutex> lock(mLock);
+    mStockEffectActive = false;
+    mLastStockEffectId = INVALID_VALUE;
     return play(INVALID_VALUE, timeoutMs, NULL);
 }
 
 int InputFFDevice::off() {
+    std::lock_guard<std::mutex> lock(mLock);
+    mStockEffectActive = false;
+    mLastStockEffectId = INVALID_VALUE;
+    return play(INVALID_VALUE, 0, NULL);
+}
+
+int InputFFDevice::offStockEffect() {
+    std::lock_guard<std::mutex> lock(mLock);
+    if (!mStockEffectActive) {
+        return 0;
+    }
+    mStockEffectActive = false;
+    mLastStockEffectId = INVALID_VALUE;
     return play(INVALID_VALUE, 0, NULL);
 }
 
 int InputFFDevice::setAmplitude(uint8_t amplitude) {
+    std::lock_guard<std::mutex> lock(mLock);
     int tmp, ret;
     struct input_event ie;
 
@@ -309,6 +327,12 @@ int InputFFDevice::setAmplitude(uint8_t amplitude) {
 }
 
 int InputFFDevice::playEffect(int effectId, EffectStrength es, long* playLengthMs) {
+    std::lock_guard<std::mutex> lock(mLock);
+    if (mInExternalControl) {
+        return -EBUSY;
+    }
+    mStockEffectActive = false;
+    mLastStockEffectId = INVALID_VALUE;
     switch (es) {
         case EffectStrength::LIGHT:
             mCurrMagnitude = LIGHT_MAGNITUDE;
@@ -324,6 +348,45 @@ int InputFFDevice::playEffect(int effectId, EffectStrength es, long* playLengthM
     }
 
     return play(effectId, INVALID_VALUE, playLengthMs);
+}
+
+int InputFFDevice::playStockEffect(int effectId, EffectStrength es, long* playLengthMs) {
+    std::lock_guard<std::mutex> lock(mLock);
+    if (mInExternalControl) {
+        return -EBUSY;
+    }
+#ifdef USE_EFFECT_STREAM
+    if (effectId < 0 || get_effect_stream(effectId) == nullptr) {
+        return -ENOENT;
+    }
+    switch (es) {
+        case EffectStrength::LIGHT:
+            mCurrMagnitude = LIGHT_MAGNITUDE;
+            break;
+        case EffectStrength::MEDIUM:
+            mCurrMagnitude = MEDIUM_MAGNITUDE;
+            break;
+        case EffectStrength::STRONG:
+            mCurrMagnitude = STRONG_MAGNITUDE;
+            break;
+        default:
+            return -1;
+    }
+    int ret = play(effectId, INVALID_VALUE, playLengthMs);
+    if (ret == 0) {
+        mStockEffectActive = true;
+        mLastStockEffectId = effectId;
+    } else {
+        mStockEffectActive = false;
+        mLastStockEffectId = INVALID_VALUE;
+    }
+    return ret;
+#else
+    (void)effectId;
+    (void)es;
+    (void)playLengthMs;
+    return -ENOSYS;
+#endif
 }
 
 LedVibratorDevice::LedVibratorDevice() {

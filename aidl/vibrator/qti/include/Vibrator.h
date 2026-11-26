@@ -30,6 +30,7 @@
 #pragma once
 
 #include <aidl/android/hardware/vibrator/BnVibrator.h>
+#include <mutex>
 
 namespace aidl {
 namespace android {
@@ -40,6 +41,8 @@ class InputFFDevice {
   public:
     InputFFDevice();
     int playEffect(int effectId, EffectStrength es, long* playLengthMs);
+    int playStockEffect(int effectId, EffectStrength es, long* playLengthMs);
+    int offStockEffect();
     int on(int32_t timeoutMs);
     int off();
     int setAmplitude(uint8_t amplitude);
@@ -50,9 +53,12 @@ class InputFFDevice {
 
   private:
     int play(int effectId, uint32_t timeoutMs, long* playLengthMs);
+    std::mutex mLock;
     int mVibraFd;
     int16_t mCurrAppId;
     int16_t mCurrMagnitude;
+    bool mStockEffectActive = false;
+    int mLastStockEffectId = -1;
 };
 
 class LedVibratorDevice {

@@ -10,6 +10,10 @@ cc_library_shared {
     }),
     srcs: [
         "Vibrator.cpp",
+        "OplusVibrator.cpp",
+    ],
+    static_libs: [
+        "vendor.oplus.hardware.vibrator-V1-ndk",
     ],
     shared_libs: [
         "libcutils",
@@ -35,6 +39,9 @@ cc_binary {
     cflags: Common_CFlags,
     srcs: [
         "service.cpp",
+    ],
+    static_libs: [
+        "vendor.oplus.hardware.vibrator-V1-ndk",
     ],
     shared_libs: [
         "libcutils",

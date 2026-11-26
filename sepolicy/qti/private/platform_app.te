@@ -3,3 +3,6 @@ get_prop(platform_app_36, system_oplus_touch_prop)
 
 binder_call(platform_app, horae)
 binder_call(platform_app_36, horae)
+
+hal_client_domain(platform_app, vendor_hal_oplus_vibrator)
+hal_client_domain(platform_app_36, vendor_hal_oplus_vibrator)

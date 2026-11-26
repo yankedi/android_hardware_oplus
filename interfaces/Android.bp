@@ -987,6 +987,35 @@ aidl_interface {
     frozen: true,
 }
 
+aidl_interface {
+    name: "vendor.oplus.hardware.vibrator",
+    vendor_available: true,
+    local_include_dir: "aidl",
+    srcs: ["aidl/vendor/oplus/hardware/vibrator/*.aidl"],
+    stability: "vintf",
+    owner: "oplus",
+
+    backend: {
+        cpp: {
+            enabled: false,
+        },
+        ndk: {
+            enabled: true,
+        },
+        java: {
+            enabled: true,
+            sdk_version: "module_current",
+        },
+    },
+    versions_with_info: [
+        {
+            version: "1",
+            imports: [],
+        },
+    ],
+    frozen: true,
+}
+
 cc_defaults {
     name: "vendor.oplus.hardware.ndk_platform_shim_defaults",
     shared_libs: ["libbinder_ndk"],
